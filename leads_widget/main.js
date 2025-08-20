@@ -7,15 +7,18 @@ AMOCRM.widgets.init().then(() => {
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
 
-        fetch(`https://your-domain.amocrm.ru/api/v4/leads?filter[date_create][from]=${Math.floor(firstDay/1000)}&filter[date_create][to]=${Math.floor(lastDay/1000)}`, {
-            headers: {
-                'Authorization': `Bearer ${widget.token}`
+        // Используем встроенный метод виджета для получения лидов
+        widget.getLeads({
+            filter: {
+                date_create: {
+                    from: Math.floor(firstDay / 1000),
+                    to: Math.floor(lastDay / 1000)
+                }
             }
-        })
-        .then(res => res.json())
-        .then(data => {
-            const leads = data._embedded.leads || [];
+        }).then(data => {
+            const leads = data || [];
             const weeks = {};
+            
             leads.forEach(lead => {
                 const date = new Date(lead.created_at * 1000);
                 const weekNumber = Math.ceil(date.getDate() / 7);
@@ -27,7 +30,6 @@ AMOCRM.widgets.init().then(() => {
             const labels = Object.keys(weeks).map(w => `Неделя ${w}`);
             const totalLeads = Object.values(weeks).map(w => w.total);
             const conversion = Object.values(weeks).map(w => (w.won / w.total * 100).toFixed(1));
-
             const barColors = conversion.map(c => c == 0 ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.5)');
 
             if(chart) chart.destroy();
@@ -79,7 +81,7 @@ AMOCRM.widgets.init().then(() => {
                     }
                 }
             });
-        });
+        }).catch(err => console.error('Ошибка при получении лидов:', err));
     };
 
     const monthSelect = document.getElementById('monthSelect');
@@ -92,3 +94,6 @@ AMOCRM.widgets.init().then(() => {
         fetchDataAndRender(year, month - 1);
     });
 });
+
+});
+
