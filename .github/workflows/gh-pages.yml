@@ -3,7 +3,7 @@ name: Deploy Leads Widget to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main  # деплой с ветки main
 
 jobs:
   deploy:
@@ -16,5 +16,6 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./leads_widget
+          github_token: ${{ secrets.GH_PAGES_TOKEN }}  # твой PAT
+          publish_dir: ./leads_widget          # папка с виджетом
+          publish_branch: gh-pages             # ветка для GitHub Pages
