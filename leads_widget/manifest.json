@@ -1,10 +1,13 @@
 {
-  "id": "leads_conversion_widget",
-  "name": "Leads Conversion Widget",
-  "icon": "icon.png",
-  "settings": {},
-  "backend": false,
-  "type": "dashboard",
-  "location": ["dashboard"],
-  "version": "1.0"
+  "name": "leads_conversion_widget",
+  "version": "1.0",
+  "description": "Виджет динамики лидов и конверсии",
+  "type": "widget",
+  "widget": {
+    "icon": "icon.png",
+    "html": "index.html",
+    "js": ["main.js"],
+    "css": ["style.css"],
+    "settings": []
+  }
 }
