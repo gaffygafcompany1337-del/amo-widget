@@ -4,78 +4,87 @@ AMOCRM.widgets.init().then(() => {
     let chart;
 
     const fetchDataAndRender = (year, month) => {
-        widget.getLeads({ date_from: `${year}-${month + 1}-01`, date_to: `${year}-${month + 1}-31` })
-        .then(leads => {
-            const weeks = {};
-            leads.forEach(lead => {
-                const date = new Date(lead.created_at * 1000);
-                const weekNumber = Math.ceil(date.getDate() / 7);
-                if (!weeks[weekNumber]) weeks[weekNumber] = { total: 0, won: 0 };
-                weeks[weekNumber].total++;
-                if (lead.status_id === 142) weeks[weekNumber].won++;
-            });
+        widget.getLeads({date_from: new Date(year, month, 1), date_to: new Date(year, month + 1, 0)})
+            .then(leads => {
+                const weeks = {};
+                leads.forEach(lead => {
+                    const date = new Date(lead.created_at * 1000);
+                    const weekNumber = Math.ceil(date.getDate() / 7);
+                    if (!weeks[weekNumber]) weeks[weekNumber] = { total: 0, won: 0 };
+                    weeks[weekNumber].total++;
+                    if (lead.status_id === 142) weeks[weekNumber].won++;
+                });
 
-            const labels = Object.keys(weeks).map(w => `Неделя ${w}`);
-            const totalLeads = Object.values(weeks).map(w => w.total);
-            const conversion = Object.values(weeks).map(w => (w.won / w.total * 100).toFixed(1));
+                const labels = Object.keys(weeks).map(w => `Неделя ${w}`);
+                const totalLeads = Object.values(weeks).map(w => w.total);
+                const conversion = Object.values(weeks).map(w => (w.won / w.total * 100).toFixed(1));
 
-            const barColors = conversion.map(c => c == 0 ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.5)');
+                const barColors = conversion.map(c => c == 0 ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.5)');
 
-            if(chart) chart.destroy();
+                if(chart) chart.destroy();
 
-            chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            type: 'bar',
-                            label: 'Лиды',
-                            data: totalLeads,
-                            backgroundColor: barColors
-                        },
-                        {
-                            type: 'line',
-                            label: 'Конверсия %',
-                            data: conversion,
-                            borderColor: 'rgba(255, 206, 86, 1)',
-                            backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                            yAxisID: 'y1',
-                            fill: false,
-                            tension: 0.2,
-                            pointRadius: 5,
-                            pointHoverRadius: 8
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    if(context.dataset.type === 'bar'){
-                                        const conv = conversion[context.dataIndex];
-                                        return `Лиды: ${context.raw}, Конверсия: ${conv}%`;
-                                    } else {
-                                        return `Конверсия: ${context.raw}%`;
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: 'Лиды',
+                                data: totalLeads,
+                                backgroundColor: barColors
+                            },
+                            {
+                                type: 'line',
+                                label: 'Конверсия %',
+                                data: conversion,
+                                borderColor: 'rgba(255, 206, 86, 1)',
+                                backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                                yAxisID: 'y1',
+                                fill: false,
+                                tension: 0.2,
+                                pointRadius: 5,
+                                pointHoverRadius: 8
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { labels: { color: '#ffffff' } },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        if(context.dataset.type === 'bar'){
+                                            const conv = conversion[context.dataIndex];
+                                            return `Лиды: ${context.raw}, Конверсия: ${conv}%`;
+                                        } else {
+                                            return `Конверсия: ${context.raw}%`;
+                                        }
                                     }
                                 }
                             }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#ffffff' } },
+                            y: { beginAtZero: true, position: 'left', title: { display: true, text: 'Лиды', color: '#ffffff' }, ticks: { color: '#ffffff' } },
+                            y1: { beginAtZero: true, position: 'right', title: { display: true, text: 'Конверсия %', color: '#ffffff' }, ticks: { color: '#ffffff' } }
                         }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, position: 'left', title: { display: true, text: 'Лиды' }, ticks: { color: '#fff' } },
-                        y1: { beginAtZero: true, position: 'right', title: { display: true, text: 'Конверсия %' }, ticks: { color: '#fff' } },
-                        x: { ticks: { color: '#fff' } }
                     }
-                }
+                });
             });
-        });
     };
 
     const monthSelect = document.getElementById('monthSelect');
     const now = new Date();
+
+    for(let m=0; m<12; m++){
+        const option = document.createElement('option');
+        option.value = `${now.getFullYear()}-${String(m+1).padStart(2,'0')}`;
+        option.textContent = `${now.getFullYear()}-${String(m+1).padStart(2,'0')}`;
+        monthSelect.appendChild(option);
+    }
+
     monthSelect.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
     fetchDataAndRender(now.getFullYear(), now.getMonth());
 
