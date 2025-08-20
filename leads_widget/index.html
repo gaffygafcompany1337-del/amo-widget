@@ -1,18 +1,9 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Leads Conversion Widget</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <div id="widgetContainer">
-        <h2>Динамика лидов и конверсии</h2>
-        <label for="monthSelect">Выберите месяц:</label>
-        <input type="month" id="monthSelect">
-        <canvas id="leadsChart"></canvas>
-    </div>
-    <script src="main.js"></script>
-</body>
-</html>
+<div id="leadsWidgetContainer">
+    <select id="monthSelect"></select>
+    <canvas id="leadsChart" width="400" height="200"></canvas>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="main.js"></script>
+<link rel="stylesheet" href="style.css">
