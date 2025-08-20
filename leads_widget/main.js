@@ -3,39 +3,23 @@ AMOCRM.widgets.init().then(() => {
     const ctx = document.getElementById('leadsChart').getContext('2d');
     let chart;
 
-    const fetchDataAndRender = async (year, month) => {
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-
-        try {
-            const response = await AMOCRM.api.call(
-                'GET',
-                `/api/v4/leads?filter[date_create][from]=${Math.floor(firstDay/1000)}&filter[date_create][to]=${Math.floor(lastDay/1000)}`
-            );
-
-            const leads = response._embedded?.leads || [];
-            const pipelineId = leads[0]?.pipeline_id || null;
-
-            const pipelineResponse = await AMOCRM.api.call('GET', `/api/v4/leads/pipelines`);
-            const pipeline = pipelineResponse._embedded.pipelines.find(p => p.id === pipelineId);
-            const wonStatusIds = pipeline?.statuses.filter(s => s.type === 'won').map(s => s.id) || [];
-
+    const fetchDataAndRender = (year, month) => {
+        widget.getLeads({ date_from: `${year}-${month + 1}-01`, date_to: `${year}-${month + 1}-31` })
+        .then(leads => {
             const weeks = {};
             leads.forEach(lead => {
                 const date = new Date(lead.created_at * 1000);
                 const weekNumber = Math.ceil(date.getDate() / 7);
                 if (!weeks[weekNumber]) weeks[weekNumber] = { total: 0, won: 0 };
                 weeks[weekNumber].total++;
-                if (wonStatusIds.includes(lead.status_id)) weeks[weekNumber].won++;
+                if (lead.status_id === 142) weeks[weekNumber].won++;
             });
 
             const labels = Object.keys(weeks).map(w => `Неделя ${w}`);
             const totalLeads = Object.values(weeks).map(w => w.total);
             const conversion = Object.values(weeks).map(w => (w.won / w.total * 100).toFixed(1));
 
-            const barColors = conversion.map(c => c == 0 ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.7)');
-            const lineColor = 'rgba(255, 206, 86, 1)';
-            const lineBgColor = 'rgba(255, 206, 86, 0.2)';
+            const barColors = conversion.map(c => c == 0 ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.5)');
 
             if(chart) chart.destroy();
 
@@ -54,8 +38,8 @@ AMOCRM.widgets.init().then(() => {
                             type: 'line',
                             label: 'Конверсия %',
                             data: conversion,
-                            borderColor: lineColor,
-                            backgroundColor: lineBgColor,
+                            borderColor: 'rgba(255, 206, 86, 1)',
+                            backgroundColor: 'rgba(255, 206, 86, 0.2)',
                             yAxisID: 'y1',
                             fill: false,
                             tension: 0.2,
@@ -67,11 +51,7 @@ AMOCRM.widgets.init().then(() => {
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { labels: { color: '#fff' } },
                         tooltip: {
-                            backgroundColor: '#333',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
                             callbacks: {
                                 label: function(context) {
                                     if(context.dataset.type === 'bar'){
@@ -85,16 +65,13 @@ AMOCRM.widgets.init().then(() => {
                         }
                     },
                     scales: {
-                        x: { ticks: { color: '#fff' }, grid: { color: '#444' } },
-                        y: { ticks: { color: '#fff' }, grid: { color: '#444' }, position: 'left', title: { display: true, text: 'Лиды', color: '#fff' } },
-                        y1: { ticks: { color: '#fff' }, grid: { color: '#444' }, position: 'right', title: { display: true, text: 'Конверсия %', color: '#fff' } }
+                        y: { beginAtZero: true, position: 'left', title: { display: true, text: 'Лиды' }, ticks: { color: '#fff' } },
+                        y1: { beginAtZero: true, position: 'right', title: { display: true, text: 'Конверсия %' }, ticks: { color: '#fff' } },
+                        x: { ticks: { color: '#fff' } }
                     }
                 }
             });
-
-        } catch (err) {
-            console.error('Ошибка при получении данных виджета:', err);
-        }
+        });
     };
 
     const monthSelect = document.getElementById('monthSelect');
@@ -107,5 +84,3 @@ AMOCRM.widgets.init().then(() => {
         fetchDataAndRender(year, month - 1);
     });
 });
-
-
