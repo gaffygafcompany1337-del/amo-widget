@@ -3,36 +3,42 @@ AMOCRM.widgets.init().then(() => {
     const ctx = document.getElementById('leadsChart').getContext('2d');
     let chart;
 
-    const fetchDataAndRender = (year, month) => {
+    const fetchDataAndRender = async (year, month) => {
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
 
-        // Используем встроенный метод виджета для получения лидов
-        widget.getLeads({
-            filter: {
-                date_create: {
-                    from: Math.floor(firstDay / 1000),
-                    to: Math.floor(lastDay / 1000)
-                }
-            }
-        }).then(data => {
-            const leads = data || [];
+        try {
+            // Получаем лиды через API виджетов
+            const response = await AMOCRM.api.call(
+                'GET',
+                `/api/v4/leads?filter[date_create][from]=${Math.floor(firstDay/1000)}&filter[date_create][to]=${Math.floor(lastDay/1000)}`
+            );
+
+            const leads = response._embedded?.leads || [];
+
+            // Получаем ID выигранных статусов из воронки
+            const pipelineId = leads[0]?.pipeline_id || null;
+            const pipelineResponse = await AMOCRM.api.call('GET', `/api/v4/leads/pipelines`);
+            const pipeline = pipelineResponse._embedded.pipelines.find(p => p.id === pipelineId);
+            const wonStatusIds = pipeline?.statuses.filter(s => s.type === 'won').map(s => s.id) || [];
+
+            // Группируем лиды по неделям
             const weeks = {};
-            
             leads.forEach(lead => {
                 const date = new Date(lead.created_at * 1000);
                 const weekNumber = Math.ceil(date.getDate() / 7);
                 if (!weeks[weekNumber]) weeks[weekNumber] = { total: 0, won: 0 };
                 weeks[weekNumber].total++;
-                if (lead.status_id === 142) weeks[weekNumber].won++;
+                if (wonStatusIds.includes(lead.status_id)) weeks[weekNumber].won++;
             });
 
             const labels = Object.keys(weeks).map(w => `Неделя ${w}`);
             const totalLeads = Object.values(weeks).map(w => w.total);
             const conversion = Object.values(weeks).map(w => (w.won / w.total * 100).toFixed(1));
+
             const barColors = conversion.map(c => c == 0 ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.5)');
 
-            if(chart) chart.destroy();
+            if (chart) chart.destroy();
 
             chart = new Chart(ctx, {
                 type: 'bar',
@@ -81,7 +87,10 @@ AMOCRM.widgets.init().then(() => {
                     }
                 }
             });
-        }).catch(err => console.error('Ошибка при получении лидов:', err));
+
+        } catch (err) {
+            console.error('Ошибка при получении данных виджета:', err);
+        }
     };
 
     const monthSelect = document.getElementById('monthSelect');
@@ -96,4 +105,5 @@ AMOCRM.widgets.init().then(() => {
 });
 
 });
+
 
