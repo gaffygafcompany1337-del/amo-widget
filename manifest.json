@@ -1,0 +1,8 @@
+{
+  "name": "Динамика лидов и конверсии",
+  "version": "1.0",
+  "id": "leads_conversion_widget",
+  "url": "https://gaffygafcompany1337-del.github.io/amo-widget/leads_widget/index.html",
+  "icon": "https://gaffygafcompany1337-del.github.io/amo-widget/leads_widget/icon.png",
+  "target": ["dashboard"]
+}
