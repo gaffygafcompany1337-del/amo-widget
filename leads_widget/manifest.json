@@ -1,0 +1,8 @@
+{
+  "name": "Динамика лидов и конверсии",
+  "version": "1.0",
+  "id": "leads_conversion_widget",
+  "url": "https://ваш-домен.ru/widget/index.html",
+  "icon": "https://ваш-домен.ru/widget/icon.png",
+  "target": ["dashboard"]
+}
