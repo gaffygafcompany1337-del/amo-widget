@@ -1,8 +1,14 @@
 {
-  "name": "Динамика лидов и конверсии",
-  "version": "1.0",
-  "id": "leads_conversion_widget",
-  "url": "https://gaffygafcompany1337-del.github.io/amo-widget/leads_widget/index.html",
-  "icon": "https://gaffygafcompany1337-del.github.io/amo-widget/leads_widget/icon.png",
-  "target": ["dashboard"]
+    "widget_code": "leads_conversion_widget",
+    "title": "Конверсия лидов",
+    "icon": "icon.png",
+    "sizes": {
+        "min_width": 350,
+        "min_height": 300,
+        "max_width": 800,
+        "max_height": 500
+    },
+    "url": "index.html",
+    "is_public": true
 }
+
