@@ -1,27 +1,22 @@
-body, #leadsChart {
-    background-color: #1e1e1e;
+body, #widgetContainer {
+    background-color: #121212;
     color: #ffffff;
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
+    padding: 10px;
 }
 
-#leadsWidgetContainer {
-    padding: 15px;
-    border-radius: 8px;
-    background-color: #1e1e1e;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-}
-
-#monthSelect {
-    background-color: #2c2c2c;
+h2 {
     color: #ffffff;
-    border: 1px solid #444;
-    border-radius: 4px;
-    padding: 5px 8px;
-    margin-bottom: 15px;
 }
 
-#monthSelect:hover {
-    border-color: #888;
+select {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+canvas {
+    background-color: #1e1e1e;
+    border-radius: 8px;
 }
