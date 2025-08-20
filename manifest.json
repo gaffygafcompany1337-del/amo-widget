@@ -1,14 +1,10 @@
 {
-    "widget_code": "leads_conversion_widget",
-    "title": "Конверсия лидов",
-    "icon": "icon.png",
-    "sizes": {
-        "min_width": 350,
-        "min_height": 300,
-        "max_width": 800,
-        "max_height": 500
-    },
-    "url": "index.html",
-    "is_public": true
+  "id": "leads_conversion_widget",
+  "name": "Leads Conversion Widget",
+  "icon": "icon.png",
+  "settings": {},
+  "backend": false,
+  "type": "dashboard",
+  "location": ["dashboard"],
+  "version": "1.0"
 }
-
