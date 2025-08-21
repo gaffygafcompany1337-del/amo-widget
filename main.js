@@ -1,122 +1,99 @@
-AMOCRM.widgets.init().then(() => {
-    const ctx = document.getElementById('leadsChart').getContext('2d');
-    let chart;
-    const monthSelect = document.getElementById('monthSelect');
-    const yearSelect = document.getElementById('yearSelect');
-    const viewSelect = document.getElementById('viewSelect');
+document.addEventListener("DOMContentLoaded", () => {
+  const yearSelect = document.getElementById("yearSelect");
+  const monthSelect = document.getElementById("monthSelect");
+  const modeSelect = document.getElementById("modeSelect");
+  const ctx = document.getElementById("leadsChart").getContext("2d");
 
-    let leadsData = [];
+  // Фейковые данные
+  const fakeData = {
+    2025: {
+      1: [5, 10, 7, 12],
+      2: [8, 14, 6, 10],
+      3: [12, 9, 15, 18],
+    }
+  };
 
-    const fetchAllLeads = () => {
-        return AMOCRM.api.call('GET', '/api/v4/leads', {}).then(data => {
-            leadsData = data._embedded ? data._embedded.leads : [];
-            populateYearSelect();
-        });
-    };
+  // Заполняем селекты
+  Object.keys(fakeData).forEach(year => {
+    const opt = document.createElement("option");
+    opt.value = year;
+    opt.textContent = year;
+    yearSelect.appendChild(opt);
+  });
 
-    const populateYearSelect = () => {
-        const years = [...new Set(leadsData.map(l => new Date(l.created_at*1000).getFullYear()))];
-        yearSelect.innerHTML = '';
-        years.forEach(y => {
-            const opt = document.createElement('option');
-            opt.value = y;
-            opt.textContent = y;
-            yearSelect.appendChild(opt);
-        });
-        populateMonthSelect();
-        renderChart();
-    };
+  function updateMonths(year) {
+    monthSelect.innerHTML = "";
+    Object.keys(fakeData[year]).forEach(month => {
+      const opt = document.createElement("option");
+      opt.value = month;
+      opt.textContent = month;
+      monthSelect.appendChild(opt);
+    });
+  }
 
-    const populateMonthSelect = () => {
-        const selectedYear = parseInt(yearSelect.value);
-        const months = [...new Set(leadsData
-            .filter(l => new Date(l.created_at*1000).getFullYear() === selectedYear)
-            .map(l => new Date(l.created_at*1000).getMonth() + 1)
-        )];
-        monthSelect.innerHTML = '';
-        months.forEach(m => {
-            const opt = document.createElement('option');
-            opt.value = m;
-            opt.textContent = m;
-            monthSelect.appendChild(opt);
-        });
-    };
+  let chart;
 
-    const renderChart = () => {
-        const mode = viewSelect.value;
-        const year = parseInt(yearSelect.value);
-        const month = parseInt(monthSelect.value);
+  function updateChart() {
+    const year = yearSelect.value;
+    const month = monthSelect.value;
+    const mode = modeSelect.value;
 
-        let periods = {};
+    let labels, data;
 
-        if(mode === 'week'){
-            const monthLeads = leadsData.filter(l => {
-                const d = new Date(l.created_at*1000);
-                return d.getFullYear() === year && d.getMonth()+1 === month;
-            });
-            monthLeads.forEach(lead => {
-                const d = new Date(lead.created_at*1000);
-                const week = Math.ceil(d.getDate()/7);
-                if(!periods[week]) periods[week] = { total:0, won:0 };
-                periods[week].total++;
-                if(lead.status_id === 142) periods[week].won++;
-            });
-        } else {
-            const yearLeads = leadsData.filter(l => new Date(l.created_at*1000).getFullYear() === year);
-            yearLeads.forEach(lead => {
-                const m = new Date(lead.created_at*1000).getMonth() + 1;
-                if(!periods[m]) periods[m] = { total:0, won:0 };
-                periods[m].total++;
-                if(lead.status_id === 142) periods[m].won++;
-            });
-        }
+    if (mode === "weeks") {
+      labels = ["1 неделя", "2 неделя", "3 неделя", "4 неделя"];
+      data = fakeData[year][month];
+    } else {
+      labels = Object.keys(fakeData[year]);
+      data = labels.map(m => fakeData[year][m].reduce((a, b) => a + b, 0));
+    }
 
-        const labels = Object.keys(periods).map(p => mode==='week'?`Неделя ${p}`:`Месяц ${p}`);
-        const totalLeads = Object.values(periods).map(p => p.total);
-        const conversion = Object.values(periods).map(p => ((p.won/p.total)*100).toFixed(1));
-        const barColors = conversion.map(c => c==0?'rgba(255,99,132,0.7)':'rgba(54,162,235,0.5)');
+    if (chart) chart.destroy();
 
-        if(chart) chart.destroy();
-        chart = new Chart(ctx, {
-            type:'bar',
-            data:{
-                labels,
-                datasets:[
-                    { type:'bar', label:'Лиды', data: totalLeads, backgroundColor: barColors },
-                    { type:'line', label:'Конверсия %', data: conversion,
-                      borderColor:'rgba(255,206,86,1)',
-                      backgroundColor:'rgba(255,206,86,0.2)',
-                      yAxisID:'y1', fill:false, tension:0.2, pointRadius:5, pointHoverRadius:8
-                    }
-                ]
-            },
-            options:{
-                responsive:true,
-                plugins:{
-                    legend:{ labels:{ color:'#fff' } },
-                    tooltip:{
-                        callbacks:{
-                            label:function(ctx){
-                                if(ctx.dataset.type==='bar'){
-                                    const conv = conversion[ctx.dataIndex];
-                                    return `Лиды: ${ctx.raw}, Конверсия: ${conv}%`;
-                                } else return `Конверсия: ${ctx.raw}%`;
-                            }
-                        }
-                    }
-                },
-                scales:{
-                    x:{ ticks:{ color:'#fff' } },
-                    y:{ beginAtZero:true, position:'left', title:{ display:true, text:'Лиды', color:'#fff' }, ticks:{ color:'#fff' } },
-                    y1:{ beginAtZero:true, position:'right', title:{ display:true, text:'Конверсия %', color:'#fff' }, ticks:{ color:'#fff' } }
-                }
+    chart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          label: "Лиды",
+          data,
+          borderColor: "rgb(75, 192, 192)",
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: "#fff"
             }
-        });
-    };
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: "#fff" }
+          },
+          y: {
+            ticks: { color: "#fff" }
+          }
+        }
+      }
+    });
+  }
 
-    yearSelect.addEventListener('change', () => { populateMonthSelect(); renderChart(); });
-    monthSelect.addEventListener('change', renderChart);
-    viewSelect.addEventListener('change', renderChart);
+  // Слушатели
+  yearSelect.addEventListener("change", () => {
+    updateMonths(yearSelect.value);
+    updateChart();
+  });
+  monthSelect.addEventListener("change", updateChart);
+  modeSelect.addEventListener("change", updateChart);
 
-    fetchAllLeads();
+  // Первоначальная инициализация
+  yearSelect.value = Object.keys(fakeData)[0];
+  updateMonths(yearSelect.value);
+  monthSelect.value = Object.keys(fakeData[yearSelect.value])[0];
+  updateChart();
 });
+
