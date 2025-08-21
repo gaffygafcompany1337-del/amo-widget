@@ -1,35 +1,30 @@
 body {
-    background-color: #1e1e1e;
-    color: #ffffff;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 10px;
+  margin: 0;
+  background: #111;
+  color: #fff;
+  font-family: Arial, sans-serif;
 }
 
 .widget-container {
-    width: 100%;
-    max-width: 800px;
-    margin: auto;
+  background: #222;
+  border-radius: 12px;
+  padding: 20px;
+  width: 90%;
+  height: 90%;
 }
 
 .controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
-}
-
-.controls label {
-    display: flex;
-    flex-direction: column;
-    font-size: 14px;
-    color: #ffffff;
+  margin-bottom: 15px;
 }
 
 select {
-    background-color: #333;
-    color: #fff;
-    border: 1px solid #555;
-    padding: 5px;
+  background: #333;
+  color: #fff;
+  border: 1px solid #666;
+  padding: 5px;
+  margin-left: 5px;
+}
+
     border-radius: 4px;
 }
+
