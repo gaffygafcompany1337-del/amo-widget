@@ -1,15 +1,29 @@
 {
   "widget": {
-    "name": "Лиды и Конверсия",
-    "description": "Виджет для отображения динамики лидов и конверсии по неделям и месяцам",
-    "version": "1.0",
-    "author": "Антон"
-  },
-  "locations": [
-    {
-      "location": "dashboard",
-      "url": "https://username.github.io/widget/index.html"
+    "name": {
+      "ru": "Статистика лидов"
+    },
+    "description": {
+      "ru": "График изменения количества лидов и конверсии по неделям и месяцам"
+    },
+    "version": "1.0.0",
+    "author": "ТвоеИмя",
+    "init_once": false,
+    "locale": [
+      "ru"
+    ],
+    "support": {
+      "link": "https://example.com",
+      "email": "support@example.com"
+    },
+    "interface": {
+      "card": {
+        "url": "index.html",
+        "height": 600
+      },
+      "settings": {
+        "url": "settings.html"
+      }
     }
-  ]
+  }
 }
-
