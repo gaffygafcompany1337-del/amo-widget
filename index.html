@@ -1,29 +1,31 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Виджет Лиды и Конверсия</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <title>Статистика лидов</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="main.js" defer></script>
 </head>
 <body>
-    <div class="widget-container">
-        <div class="controls">
-            <label>Год:
-                <select id="yearSelect"></select>
-            </label>
-            <label>Месяц:
-                <select id="monthSelect"></select>
-            </label>
-            <label>Режим:
-                <select id="viewSelect">
-                    <option value="week">По неделям</option>
-                    <option value="month">По месяцам</option>
-                </select>
-            </label>
-        </div>
-        <canvas id="leadsChart"></canvas>
+  <div class="widget-container">
+    <div class="controls">
+      <label>Год:
+        <select id="yearSelect"></select>
+      </label>
+      <label>Месяц:
+        <select id="monthSelect"></select>
+      </label>
+      <label>Режим:
+        <select id="modeSelect">
+          <option value="weeks">По неделям</option>
+          <option value="months">По месяцам</option>
+        </select>
+      </label>
     </div>
-    <script src="main.js"></script>
+    <canvas id="leadsChart"></canvas>
+  </div>
 </body>
 </html>
+
+
